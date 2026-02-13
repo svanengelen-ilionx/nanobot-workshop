@@ -33,6 +33,12 @@ components:
           protocol: https
 
 commands:
+  - id: init-symlink
+    exec:
+      component: nanobot
+      commandLine: |
+        [ -L /projects/.nanobot ] || ln -s $HOME/.nanobot /projects/.nanobot
+
   - id: nanobot-status
     exec:
       label: "NanoBot: Show Status"
@@ -71,3 +77,7 @@ commands:
         fi
       group:
         kind: build
+
+events:
+  postStart:
+    - init-symlink

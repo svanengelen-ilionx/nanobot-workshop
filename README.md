@@ -1,5 +1,7 @@
 # NanoBot Workshop
 
+[![Open in Dev Spaces](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.openshift-sandbox.ilionx-ocp.com/#https://github.com/svanengelen-ilionx/nanobot-workshop)
+
 Welcome to the **NanoBot AI Assistant Workshop**! In this hands-on session you will set up and interact with [NanoBot](https://github.com/HKUDS/nanobot) — an ultra-lightweight personal AI assistant (~4,000 lines of code).
 
 ## What is NanoBot?
