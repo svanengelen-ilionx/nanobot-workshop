@@ -37,7 +37,11 @@ commands:
     exec:
       component: nanobot
       commandLine: |
-        [ -L /projects/nanobot-home ] || ln -s $HOME/.nanobot /projects/nanobot-home
+        # Link into the project folder so it shows up in the VS Code explorer
+        PROJECT_DIR=$(find /projects -maxdepth 1 -type d | grep -v "^/projects$" | head -n 1)
+        if [ -n "$PROJECT_DIR" ]; then
+          [ -L "$PROJECT_DIR/nanobot-home" ] || ln -s $HOME/.nanobot "$PROJECT_DIR/nanobot-home"
+        fi
 
   - id: nanobot-status
     exec:
