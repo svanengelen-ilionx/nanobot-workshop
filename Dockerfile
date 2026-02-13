@@ -51,8 +51,9 @@ RUN useradd -m -d /home/user -s /bin/bash -u 1001 -g 0 user && \
 USER 1001
 RUN nanobot onboard
 
-# Switch back to root for COPY operations
+# Re-apply group permissions so OpenShift's arbitrary UID can write config
 USER 0
+RUN chmod -R g=u /home/user/.nanobot
 
 # Copy workshop materials into the image
 COPY exercises/ /app/exercises/
