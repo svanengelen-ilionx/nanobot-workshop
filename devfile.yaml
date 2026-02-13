@@ -27,6 +27,10 @@ components:
           targetPort: 18790
           exposure: public
           protocol: https
+        - name: webapp
+          targetPort: 8080
+          exposure: public
+          protocol: https
 
 commands:
   - id: nanobot-status
