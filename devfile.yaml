@@ -1,0 +1,69 @@
+schemaVersion: 2.2.2
+metadata:
+  name: nanobot-workshop
+  displayName: NanoBot AI Assistant Workshop
+  description: Workshop environment for exploring the NanoBot AI assistant
+  tags:
+    - Python
+    - AI
+    - NanoBot
+  version: 1.0.0
+
+components:
+  - name: nanobot
+    container:
+      image: harbor.openshift-sandbox.ilionx-ocp.com:60443/nanobot/nanobot-workshop:latest
+      memoryLimit: 2Gi
+      memoryRequest: 512Mi
+      cpuLimit: "2"
+      cpuRequest: 250m
+      mountSources: true
+      sourceMapping: /projects
+      env:
+        - name: HOME
+          value: /root
+      endpoints:
+        - name: nanobot-gateway
+          targetPort: 18790
+          exposure: public
+          protocol: https
+
+commands:
+  - id: nanobot-status
+    exec:
+      label: "NanoBot: Show Status"
+      component: nanobot
+      commandLine: nanobot status
+      group:
+        kind: run
+
+  - id: nanobot-chat
+    exec:
+      label: "NanoBot: Interactive Chat"
+      component: nanobot
+      commandLine: nanobot agent
+      group:
+        kind: run
+
+  - id: nanobot-gateway
+    exec:
+      label: "NanoBot: Start Gateway (Telegram)"
+      component: nanobot
+      commandLine: nanobot gateway
+      group:
+        kind: run
+
+  - id: setup-config
+    exec:
+      label: "Workshop: Setup Config"
+      component: nanobot
+      commandLine: |
+        if [ ! -f /root/.nanobot/config.json ] || [ "$(cat /root/.nanobot/config.json)" = "{}" ]; then
+          cp /app/config-template.json /root/.nanobot/config.json
+          echo "Config template copied to ~/.nanobot/config.json"
+          echo "Edit it with: nano ~/.nanobot/config.json"
+        else
+          echo "Config already exists at ~/.nanobot/config.json"
+        fi
+      group:
+        kind: build

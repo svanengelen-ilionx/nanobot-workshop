@@ -1,0 +1,12 @@
+{
+  "providers": {
+    "openrouter": {
+      "apiKey": "REPLACE_WITH_YOUR_OPENROUTER_KEY"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "anthropic/claude-sonnet-4"
+    }
+  }
+}
