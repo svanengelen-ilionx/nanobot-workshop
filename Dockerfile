@@ -36,11 +36,23 @@ RUN git clone --depth 1 https://github.com/HKUDS/nanobot.git /app/nanobot-src &&
     npm install && npm run build && \
     cd /app
 
-# Create nanobot config & workspace directories
-RUN mkdir -p /root/.nanobot
+# Create a non-root user for OpenShift Dev Spaces compatibility.
+# OpenShift runs containers with an arbitrary UID in group 0 (root),
+# so we make the home directory group-writable and /etc/passwd writable
+# so the arbitrary UID can add itself.
+ENV HOME=/home/user
+RUN useradd -m -d /home/user -s /bin/bash -u 1001 -g 0 user && \
+    mkdir -p /home/user/.nanobot && \
+    chown -R 1001:0 /home/user && \
+    chmod -R g=u /home/user && \
+    chmod g=u /etc/passwd
 
-# Run onboard to initialize defaults
+# Run onboard to initialize defaults (as the non-root user)
+USER 1001
 RUN nanobot onboard
+
+# Switch back to root for COPY operations
+USER 0
 
 # Copy workshop materials into the image
 COPY exercises/ /app/exercises/
@@ -48,11 +60,15 @@ COPY scripts/ /app/scripts/
 COPY config-template.json /app/config-template.json
 COPY README.md /app/README.md
 
-# Make scripts executable
-RUN chmod +x /app/scripts/*.sh 2>/dev/null || true
+# Make scripts executable and ensure /app is readable
+RUN chmod +x /app/scripts/*.sh 2>/dev/null || true && \
+    chmod -R g=u /app
 
 # Gateway default port
 EXPOSE 18790
+
+# Run as non-root user
+USER 1001
 
 # Default to bash for interactive Dev Spaces usage
 CMD ["sleep", "infinity"]

@@ -21,7 +21,7 @@ components:
       sourceMapping: /projects
       env:
         - name: HOME
-          value: /root
+          value: /home/user
       endpoints:
         - name: nanobot-gateway
           targetPort: 18790
@@ -58,8 +58,8 @@ commands:
       label: "Workshop: Setup Config"
       component: nanobot
       commandLine: |
-        if [ ! -f /root/.nanobot/config.json ] || [ "$(cat /root/.nanobot/config.json)" = "{}" ]; then
-          cp /app/config-template.json /root/.nanobot/config.json
+        if [ ! -f $HOME/.nanobot/config.json ] || [ "$(cat $HOME/.nanobot/config.json)" = "{}" ]; then
+          cp /app/config-template.json $HOME/.nanobot/config.json
           echo "Config template copied to ~/.nanobot/config.json"
           echo "Edit it with: nano ~/.nanobot/config.json"
         else
