@@ -37,7 +37,7 @@ commands:
     exec:
       component: nanobot
       commandLine: |
-        [ -L /projects/.nanobot ] || ln -s $HOME/.nanobot /projects/.nanobot
+        [ -L /projects/nanobot-home ] || ln -s $HOME/.nanobot /projects/nanobot-home
 
   - id: nanobot-status
     exec:

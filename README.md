@@ -50,7 +50,7 @@ Once the workspace is ready, open a terminal:
 
 ### 3. Configure your API key
 
-Copy the config template and add your API key:
+You can edit the configuration file directly in the VS Code explorer by opening **`nanobot-home/config.json`**, or use the terminal:
 
 ```bash
 # Copy the template (only if no config exists yet)
@@ -161,8 +161,8 @@ Make sure your `~/.nanobot/config.json` contains a valid API key under the `prov
 
 ### Permission denied errors
 
-- The container runs as root, so this should not occur
-- If it does, check file ownership: `ls -la ~/.nanobot/`
+- The container is configured to run as a non-root user for OpenShift compatibility.
+- If you encounter permission issues, check file ownership: `ls -la ~/.nanobot/` or use the `nanobot-home` symlink in the explorer.
 
 ---
 
