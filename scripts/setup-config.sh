@@ -34,7 +34,7 @@ if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4"
+      "model": "anthropic/claude-sonnet-4.6"
     }
   }
 }
