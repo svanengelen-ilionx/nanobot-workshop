@@ -1,12 +1,13 @@
 {
   "providers": {
-    "openrouter": {
-      "apiKey": "REPLACE_WITH_YOUR_OPENROUTER_KEY"
+    "anthropic": {
+      "apiKey": "REPLACE_WITH_YOUR_API_KEY",
+      "apiBase": "https://ai.krijskraan.nl/anthropic"
     }
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4"
+      "model": "anthropic/claude-sonnet-4.6"
     }
   }
 }

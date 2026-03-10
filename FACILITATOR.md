@@ -51,19 +51,43 @@ docker run --rm -it \
 
 Choose one of:
 
-**Option A (recommended): Pre-provisioned OpenRouter keys**
-- Create OpenRouter accounts or use a shared org key
-- Set spending limits per key (e.g. $5/participant)
-- Prepare a list: participant name → API key
+**Option A (recommended): OpenShift Secret (shared key, zero participant setup)**
 
-**Option B: Azure OpenAI**
-- Ensure the Azure OpenAI resource is deployed
-- Note the endpoint URL and deployment name
-- Create API keys (can be shared or individual)
-- Verify the deployment model and quota is sufficient for 10-20 concurrent users
+Create a Kubernetes secret in each participant's Dev Spaces namespace so the API key is injected automatically. Participants won't need to edit any config — it's populated on workspace start.
 
-**Option C: Let participants use their own keys**
-- Include key signup instructions in the pre-workshop email
+```bash
+# For a single namespace:
+oc create secret generic nanobot-api-key \
+  --from-literal=api-key='YOUR_API_KEY_HERE' \
+  -n <user-devspaces-namespace>
+
+# Label it so Dev Spaces mounts it into the workspace:
+oc label secret nanobot-api-key \
+  controller.devfile.io/devworkspace_env=true \
+  controller.devfile.io/watch-secret=true \
+  -n <user-devspaces-namespace>
+```
+
+To create the secret across all participant namespaces at once:
+
+```bash
+API_KEY="YOUR_API_KEY_HERE"
+for ns in $(oc get namespaces -l app.kubernetes.io/part-of=che.eclipse.org -o jsonpath='{.items[*].metadata.name}'); do
+  oc create secret generic nanobot-api-key \
+    --from-literal=api-key="${API_KEY}" \
+    -n "${ns}" 2>/dev/null || echo "Secret already exists in ${ns}"
+  oc label secret nanobot-api-key \
+    controller.devfile.io/devworkspace_env=true \
+    controller.devfile.io/watch-secret=true \
+    -n "${ns}" 2>/dev/null || true
+done
+```
+
+> **Note:** The devfile references this secret via `secretKeyRef` with `optional: true`, so workspaces still start even if the secret doesn't exist — participants can fall back to manual config.
+
+**Option B: Let participants use their own keys**
+- Distribute individual API keys to participants
+- Participants run `bash /app/scripts/setup-config.sh` and enter their key manually
 
 ### 5. Pre-Workshop Email / Communication
 
@@ -140,14 +164,8 @@ oc delete devworkspace <name> -n <namespace>
 ### Revoke API Keys
 
 If you distributed pre-provisioned API keys:
-- Revoke/rotate them in OpenRouter or Azure
+- Revoke/rotate them via the `ai.krijskraan.nl` admin interface
 - Check usage/spending dashboards for anomalies
-
-### Cost Report
-
-Check the API provider dashboards:
-- **OpenRouter**: [openrouter.ai/activity](https://openrouter.ai/activity)
-- **Azure OpenAI**: Azure Portal → your resource → Metrics
 
 ---
 
@@ -168,10 +186,8 @@ Change the default model in `config-template.json`. Popular options:
 
 | Provider | Model | Notes |
 |----------|-------|-------|
-| OpenRouter | `anthropic/claude-sonnet-4` | Good balance of quality and cost |
-| OpenRouter | `google/gemini-2.5-flash` | Fast, affordable |
-| OpenRouter | `openai/gpt-4o` | GPT-4o |
-| Azure | `azure/<deployment>` | Enterprise, data stays in your tenant |
+| Anthropic (via ai.krijskraan.nl) | `anthropic/claude-sonnet-4` | Default — good balance of quality and cost |
+| Anthropic (via ai.krijskraan.nl) | `anthropic/claude-haiku-3-5` | Fast, lightweight |
 
 ### Restricting Agent Capabilities
 

@@ -22,6 +22,12 @@ components:
       env:
         - name: HOME
           value: /home/user
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nanobot-api-key
+              key: api-key
+              optional: true
       endpoints:
         - name: nanobot-gateway
           targetPort: 18790
@@ -67,6 +73,34 @@ commands:
       group:
         kind: run
 
+  - id: auto-config
+    exec:
+      component: nanobot
+      commandLine: |
+        # Auto-configure from OpenShift secret if available
+        CONFIG_FILE="${HOME}/.nanobot/config.json"
+        if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+          EXISTING_KEY=$(jq -r '.providers.anthropic.apiKey // empty' "${CONFIG_FILE}" 2>/dev/null || true)
+          if [ "${EXISTING_KEY}" != "${ANTHROPIC_API_KEY}" ]; then
+            cat > "${CONFIG_FILE}" <<EOF
+        {
+          "providers": {
+            "anthropic": {
+              "apiKey": "${ANTHROPIC_API_KEY}",
+              "apiBase": "https://ai.krijskraan.nl/anthropic"
+            }
+          },
+          "agents": {
+            "defaults": {
+              "model": "anthropic/claude-sonnet-4"
+            }
+          }
+        }
+        EOF
+            echo "NanoBot config auto-configured from OpenShift secret."
+          fi
+        fi
+
   - id: setup-config
     exec:
       label: "Workshop: Setup Config"
@@ -85,3 +119,4 @@ commands:
 events:
   postStart:
     - init-symlink
+    - auto-config

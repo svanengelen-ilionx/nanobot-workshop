@@ -34,51 +34,21 @@ You need your user ID to restrict the bot so only you can talk to it.
 
 ## 2.3 — Configure NanoBot for Telegram
 
-Edit your NanoBot config to add the Telegram channel:
-
-```bash
-nano ~/.nanobot/config.json
-```
+Edit your NanoBot config `~/.nanobot/config.json` to add the Telegram channel:
 
 Update the file to include the `channels` section:
-
-### If using OpenRouter:
 
 ```json
 {
   "providers": {
-    "openrouter": {
-      "apiKey": "sk-or-v1-YOUR_KEY_HERE"
+    "anthropic": {
+      "apiKey": "YOUR_API_KEY",
+      "apiBase": "https://ai.krijskraan.nl/anthropic"
     }
   },
   "agents": {
     "defaults": {
       "model": "anthropic/claude-sonnet-4"
-    }
-  },
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "token": "YOUR_TELEGRAM_BOT_TOKEN",
-      "allowFrom": ["YOUR_TELEGRAM_USER_ID"]
-    }
-  }
-}
-```
-
-### If using Azure OpenAI:
-
-```json
-{
-  "providers": {
-    "openai": {
-      "apiKey": "YOUR_AZURE_API_KEY",
-      "apiBase": "https://YOUR_RESOURCE.openai.azure.com/"
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": "azure/YOUR_DEPLOYMENT_NAME"
     }
   },
   "channels": {
