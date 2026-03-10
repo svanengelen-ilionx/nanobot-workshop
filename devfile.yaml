@@ -39,6 +39,25 @@ components:
           protocol: https
 
 commands:
+  - id: init-nanobot-src
+    exec:
+      component: nanobot
+      commandLine: |
+        # Copy nanobot source into the workspace so users can edit it
+        PROJECT_DIR=$(find /projects -maxdepth 1 -type d | grep -v "^/projects$" | head -n 1)
+        TARGET="${PROJECT_DIR}/nanobot-src"
+        if [ -n "$PROJECT_DIR" ] && [ ! -d "$TARGET/src" ]; then
+          echo "Copying nanobot source into workspace..."
+          cp -a /app/nanobot-src "$TARGET"
+          echo "Re-installing nanobot in editable mode from workspace copy..."
+          cd "$TARGET" && uv pip install --system --no-cache -e . 2>&1
+          echo "Done. Nanobot source is at $TARGET — Python edits take effect immediately."
+        elif [ -d "$TARGET/src" ]; then
+          # Source already in workspace (e.g. workspace restart); re-link editable install
+          cd "$TARGET" && uv pip install --system --no-cache -e . 2>&1
+          echo "Nanobot re-linked from workspace source."
+        fi
+
   - id: init-symlink
     exec:
       component: nanobot
@@ -72,6 +91,28 @@ commands:
       commandLine: nanobot gateway
       group:
         kind: run
+
+  - id: nanobot-rebuild
+    exec:
+      label: "NanoBot: Rebuild from Source"
+      component: nanobot
+      commandLine: |
+        PROJECT_DIR=$(find /projects -maxdepth 1 -type d | grep -v "^/projects$" | head -n 1)
+        TARGET="${PROJECT_DIR}/nanobot-src"
+        if [ -d "$TARGET" ]; then
+          echo "Re-installing nanobot from $TARGET..."
+          cd "$TARGET" && uv pip install --system --no-cache -e .
+          if [ -d "$TARGET/bridge" ]; then
+            echo "Rebuilding bridge..."
+            cd "$TARGET/bridge" && npm run build
+          fi
+          echo "Rebuild complete."
+        else
+          echo "Error: nanobot source not found at $TARGET"
+          exit 1
+        fi
+      group:
+        kind: build
 
   - id: auto-config
     exec:
@@ -118,5 +159,6 @@ commands:
 
 events:
   postStart:
+    - init-nanobot-src
     - init-symlink
     - auto-config

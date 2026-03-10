@@ -28,13 +28,14 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Clone and install nanobot
+# Clone and install nanobot (kept in image as seed for workspace copy)
 RUN git clone --depth 1 https://github.com/HKUDS/nanobot.git /app/nanobot-src && \
     cd /app/nanobot-src && \
     uv pip install --system --no-cache -e . && \
     cd /app/nanobot-src/bridge && \
     npm install && npm run build && \
-    cd /app
+    cd /app && \
+    chmod -R g=u /app/nanobot-src
 
 # Create a non-root user for OpenShift Dev Spaces compatibility.
 # OpenShift runs containers with an arbitrary UID in group 0 (root),
