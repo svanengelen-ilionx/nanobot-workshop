@@ -77,7 +77,7 @@ cat > "${CONFIG_FILE}" <<EOF
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4"
+      "model": "anthropic/claude-sonnet-4.6"
     }
   }
 }
