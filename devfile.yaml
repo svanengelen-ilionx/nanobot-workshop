@@ -22,12 +22,6 @@ components:
       env:
         - name: HOME
           value: /home/user
-        - name: ANTHROPIC_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: nanobot-api-key
-              key: api-key
-              optional: true
       endpoints:
         - name: nanobot-gateway
           targetPort: 18790

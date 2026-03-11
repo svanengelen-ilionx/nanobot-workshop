@@ -58,10 +58,10 @@ Create a Kubernetes secret in each participant's Dev Spaces namespace so the API
 ```bash
 # For a single namespace:
 oc create secret generic nanobot-api-key \
-  --from-literal=api-key='YOUR_API_KEY_HERE' \
+  --from-literal=ANTHROPIC_API_KEY='YOUR_API_KEY_HERE' \
   -n <user-devspaces-namespace>
 
-# Label it so Dev Spaces mounts it into the workspace:
+# Label it so Dev Spaces auto-injects it as an env var in every workspace container:
 oc label secret nanobot-api-key \
   controller.devfile.io/devworkspace_env=true \
   controller.devfile.io/watch-secret=true \
@@ -74,7 +74,7 @@ To create the secret across all participant namespaces at once:
 API_KEY="YOUR_API_KEY_HERE"
 for ns in $(oc get namespaces -l app.kubernetes.io/part-of=che.eclipse.org -o jsonpath='{.items[*].metadata.name}'); do
   oc create secret generic nanobot-api-key \
-    --from-literal=api-key="${API_KEY}" \
+    --from-literal=ANTHROPIC_API_KEY="${API_KEY}" \
     -n "${ns}" 2>/dev/null || echo "Secret already exists in ${ns}"
   oc label secret nanobot-api-key \
     controller.devfile.io/devworkspace_env=true \
@@ -83,7 +83,7 @@ for ns in $(oc get namespaces -l app.kubernetes.io/part-of=che.eclipse.org -o js
 done
 ```
 
-> **Note:** The devfile references this secret via `secretKeyRef` with `optional: true`, so workspaces still start even if the secret doesn't exist — participants can fall back to manual config.
+> **Note:** The `controller.devfile.io/devworkspace_env` label tells Dev Spaces to inject each key in the secret as an environment variable. The key name (`ANTHROPIC_API_KEY`) becomes the env var name directly. If the secret doesn't exist, the workspace starts normally and participants can fall back to manual config.
 
 **Option B: Let participants use their own keys**
 - Distribute individual API keys to participants
