@@ -162,22 +162,6 @@ In this exercise you learned:
 
 If you have time, try these additional activities:
 
-### Change the Model
-
-Stop the gateway, edit your config to use a different model, and restart:
-
-```json
-{
-  "agents": {
-    "defaults": {
-      "model": "google/gemini-2.5-flash"
-    }
-  }
-}
-```
-
-Then restart: `nanobot gateway`
-
 ### Scheduled Messages
 
 Set up a scheduled task via the CLI:
